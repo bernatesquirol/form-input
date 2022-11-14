@@ -6,7 +6,7 @@ function later(delay, value) {
     return new Promise(resolve => setTimeout(resolve, delay, value));
 }
 const computeOutput = (value,sourceData)=>{
-    return later(500,`${value} deps: ${JSON.stringify(sourceData)}`)
+    return later(300,`${value} deps: ${JSON.stringify(sourceData)}`)
 }
 // const computeOutput = (value,sourceData)=>{
 //     return `${value} deps: ${JSON.stringify(sourceData)}`

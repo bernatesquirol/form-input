@@ -19,8 +19,9 @@ export const useKey = <T,K>(k)=>{
     return getKey<T,K>(k)
   },[k])
 }
+
 const useSubscriptionState = (newDeps, id, callback=(newS)=>{})=>{
-    const [sourceSubs, setSourceSubscriptions] = useState<Record<string,()=>void>>({})
+    const sourceSubs = useRef<Record<string,()=>void>>({})
     const [sourceData, setSourceData] = useState<Record<string,any>>({})
     // const [derivedSourceData, setDerivedSourceData] = useState(proxy({}))
     // const [sourceDataState, setSourceDataState] = useState
@@ -28,47 +29,49 @@ const useSubscriptionState = (newDeps, id, callback=(newS)=>{})=>{
         // console.log(k, v, id)
         setSourceData((sd)=>({...sd, [k]:v}))
     },[])
-    const prevDeps = useMemo(()=>Object.keys(sourceSubs),[sourceSubs])
     useEffect(()=>{
-        if (prevDeps.length!==newDeps.length){
-            console.log("subscribed!")
-            setSourceSubscriptions(sourceS=>{
-                let newSourceS = {...sourceS}
-                // try{
-                newDeps?.forEach(d=>{
-                    if (!sourceS[d]){
-                        let {outputState} = getKey(d)
-                        newSourceS[d] = subscribe(outputState, (v)=>{
-                            if (isPromise(outputState.output)){
-                                let promiseOutput = outputState.output as Promise<any>
-                                promiseOutput.then(result=>{
-                                    subscriptionCallback(d, result)
-                                })
-                            }else subscriptionCallback(d, outputState.output)
+        // if (prevDeps.length!==newDeps.length){
+        let sourceS = sourceSubs.current
+
+        // setSourceSubscriptions(sourceS=>{
+        let newSourceS = {...sourceS}
+        // try{
+        newDeps?.forEach(d=>{
+            console.log("subscribed!", id, d)
+            if (!sourceS[d]){
+                let {outputState} = getKey(d)
+                newSourceS[d] = subscribe(outputState, (v)=>{
+                    if (isPromise(outputState.output)){
+                        let promiseOutput = outputState.output as Promise<any>
+                        promiseOutput.then(result=>{
+                            subscriptionCallback(d, result)
                         })
-                        // init
-                        // subscriptionCallback(d, outputState.output)
-                        if (isPromise(outputState.output)){
-                            let promiseOutput = outputState.output as Promise<any>
-                            promiseOutput.then(result=>{
-                                subscriptionCallback(d, result)
-                            })
-                        }else subscriptionCallback(d, outputState.output)
-                    }
+                    }else subscriptionCallback(d, outputState.output)
                 })
-                Object.entries(sourceS).filter(([k])=>!newDeps?.includes(k)).forEach(([k, unsubscribe])=>{
-                    unsubscribe()
-                    delete newSourceS[k]
-                    subscriptionCallback(k, undefined)
-                })
-                // }catch(ex){
-                //     debugger
-                // }
-                return newSourceS
-            })
-        }
+                if (!window['subscriptions']) window['subscriptions'] = []
+                window['subscriptions'].push(newSourceS[d])
+                // init
+                // subscriptionCallback(d, outputState.output)
+                if (isPromise(outputState.output)){
+                    let promiseOutput = outputState.output as Promise<any>
+                    promiseOutput.then(result=>{
+                        subscriptionCallback(d, result)
+                    })
+                }else subscriptionCallback(d, outputState.output)
+            }else{
+                console.log(sourceS)
+            }
+        })
+        Object.entries(sourceS).filter(([k])=>!newDeps?.includes(k)).forEach(([k, unsubscribe])=>{
+            console.log("unsubscribed!", id, k)
+            unsubscribe()
+            delete newSourceS[k]
+            subscriptionCallback(k, undefined)
+        })
+        sourceSubs.current = newSourceS
+        // }
         
-    },[subscriptionCallback, newDeps, prevDeps])
+    },[subscriptionCallback, newDeps, id])
     useEffect(()=>{
         if (callback) callback(sourceData)
     },[callback, sourceData])
