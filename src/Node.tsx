@@ -1,6 +1,6 @@
 
 import { Suspense } from "react";
-import { proxy, useSnapshot } from "valtio";
+import {  useSnapshot } from "valtio";
 import { useInputState } from "./FormStore"
 function later(delay, value) {
     return new Promise(resolve => setTimeout(resolve, delay, value));

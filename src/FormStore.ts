@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useRef } from "react";
 import { useCallback, useEffect, useMemo } from "react";
 import { proxy, snapshot } from "valtio";
 import { derive } from "valtio/utils";
@@ -106,7 +107,7 @@ export const useEffectWithoutFirstRun = (effect: () => void, deps: any[]) => {
       return;
     }
     return effect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, deps);
 };
 export const useReadInputState = () => {};
@@ -121,7 +122,7 @@ export const useInputState = <T, K>(
     computeOutput,
     initialValue
   );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  
 
   useEffect(() => {
     rootState.dependencies = dependencies;
@@ -140,7 +141,7 @@ export const useInputState = <T, K>(
       } else {
         rootState.value = newValue as T;
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      
     },
     [rootState.value]
   );
@@ -148,7 +149,7 @@ export const useInputState = <T, K>(
   //   if (initialValue != null) {
   //     setValue(initialValue!)
   //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   
   // }, [setValue]);
   return { rootState, outputState, setValue };
 };
