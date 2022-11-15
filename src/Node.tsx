@@ -5,7 +5,9 @@ import { useInputState } from "./FormStore"
 function later(delay, value) {
     return new Promise(resolve => setTimeout(resolve, delay, value));
 }
-const computeOutput = (value,sourceData)=>{
+const computeOutput = async (value,sourceData)=>{
+    console.log("PAID!")
+    // return `${value} deps: ${JSON.stringify(sourceData)}`
     return later(300,`${value} deps: ${JSON.stringify(sourceData)}`)
 }
 // const computeOutput = (value,sourceData)=>{
@@ -14,8 +16,8 @@ const computeOutput = (value,sourceData)=>{
 
 
 function Editor({valueState, setValue}) {
-    const {value} = useSnapshot(valueState)
-    return <input type="text" value={value||''} onChange={({target})=>valueState.value=target.value }/>
+    const {value} = useSnapshot(valueState, {sync:true})
+    return <input type="text" value={value||''} onChange={({target})=>setValue(target.value) }/>
 }
 function Output({outputState}) {
     const {output} = useSnapshot(outputState)
@@ -28,10 +30,10 @@ const WrappedOutput = (props)=><Suspense fallback={<span>waiting...</span>}><Out
 // <Text text={`result: ${text}`}></Text>
 // </Suspense>
 function Node({id, initialValue, dependencies}: {id}&any){
-    const {valueState, outputState} = useInputState(id, dependencies, computeOutput, initialValue)
+    const {rootState, outputState, setValue} = useInputState(id, dependencies, computeOutput, initialValue)
     
     return <div>
-        <WrappedEditor valueState={valueState}/>
+        <WrappedEditor valueState={rootState} setValue={setValue}/>
         {/* <Suspense fallback={<span>waiting...</span>}></Suspense> */}
         <WrappedOutput outputState={outputState}/>
     </div>
