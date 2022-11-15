@@ -5,7 +5,7 @@ import Node from './Node'
 
 
 function App() {
-  const [dependencies, setDeps] = useState({'A': ['D']})
+  const [dependencies, setDeps] = useState({'D': ['A'], 'C':["A"]})
   const [createD, setCreateD]  = useState(false)
   return (
     <>

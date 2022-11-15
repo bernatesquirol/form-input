@@ -29,11 +29,12 @@ export const getKey = <T, K>(
   k: string,
   computeFunc?: (val: T, sourceData: Record<string, K>) => void,
   initialValue?,
+  initialDeps?,
   isReference = true
 ) => {
   if (!ProxyState[k] && isReference) {
     console.log("createdKey", k);
-    let rootState = proxy({ value: initialValue as any, dependencies: [] });
+    let rootState = proxy({ value: initialValue as any, dependencies: initialDeps||[] });
     let sourceDataState = derive({
       sourceData: (get) =>
         Object.fromEntries(
@@ -93,9 +94,9 @@ export const getKey = <T, K>(
   console.log("getKey", k);
   return ProxyState[k];
 };
-export const useKey = <T, K>(k, computeFunc, initialValue) => {
+export const useKey = <T, K>(k, computeFunc, initialValue, initialDeps) => {
   return useMemo(() => {
-    return getKey<T, K>(k, computeFunc, initialValue);
+    return getKey<T, K>(k, computeFunc, initialValue, initialDeps);
   }, [k, computeFunc]);
 };
 
@@ -120,7 +121,7 @@ export const useInputState = <T, K>(
   const { outputState, rootState } = useKey<T, K>(
     id,
     computeOutput,
-    initialValue
+    initialValue, dependencies
   );
   
 
