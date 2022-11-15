@@ -79,7 +79,14 @@ export const getKey = <T, K>(
       },
     });
     ProxyState[k] = { outputState, sourceDataState, rootState };
-  } else if (ProxyState[k] && (computeFunc || initialValue)) {
+    // refresh pending !
+    Object.entries(ProxyState).forEach(([otherK, {rootState}])=>{
+      let snap = snapshot(rootState)
+      if (snap.dependencies.includes(k)){
+        rootState.dependencies = [...snap.dependencies]
+      }
+    })
+  } else if (!ProxyState[k]) {
     console.log("somebody arrived here first!", k);
   }
   console.log("getKey", k);

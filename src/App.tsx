@@ -5,15 +5,14 @@ import Node from './Node'
 
 
 function App() {
-  const [dependencies, setDeps] = useState({"A": ["D"], "D": ["C"]})
+  const [dependencies, setDeps] = useState({'A': ['D']})
   const [createD, setCreateD]  = useState(false)
   return (
     <>
       <Node id='A' initialValue='Av' dependencies={dependencies['A']}></Node>
       <Node id='B' initialValue='Bv' dependencies={dependencies['B']}></Node>
       <Node id='C' initialValue='Cv' dependencies={dependencies['C']}></Node>
-      {/* {createD?<Node id='D' initialValue='Dv' dependencies={dependencies['D']}></Node>:null} */}
-      <Node id='D' initialValue='Dv' dependencies={dependencies['D']}></Node>
+      {createD?<Node id='D' initialValue='Dv' dependencies={dependencies['D']}></Node>:null}
       <button onClick={()=>setCreateD(true)}>createD</button>
       <button onClick={()=>{setDeps(deps=>{
         let randomV: any = getRandomFromList(['A','B','C','D'])
