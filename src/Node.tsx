@@ -1,7 +1,9 @@
 
-import { Suspense } from "react";
+import { Suspense, useContext } from "react";
 import {  useSnapshot } from "valtio";
-import { useInputState } from "./FormStore"
+import { StoreContext } from "./FormStore";
+// import { useInputState } from "./FormStore"
+
 function later(delay, value) {
     return new Promise(resolve => setTimeout(resolve, delay, value));
 }
@@ -29,8 +31,9 @@ const WrappedOutput = (props)=><Suspense fallback={<span>waiting...</span>}><Out
 // const WrappedText = ({text})=><Suspense fallback={<Text text='loading...'></Text>}>
 // <Text text={`result: ${text}`}></Text>
 // </Suspense>
-function Node({id, initialValue, dependencies}: {id}&any){
-    const {rootState, outputState, setValue} = useInputState(id, dependencies, computeOutput, initialValue)
+function Node({id, initialValue, dependencies, sync}: {id}&any){
+    const {useInputState} = useContext(StoreContext)
+    const {rootState, outputState, setValue} = useInputState(id, {dependencies, computeOutput, initialValue, isReference:true, sync})
     
     return <div>
         <WrappedEditor valueState={rootState} setValue={setValue}/>
